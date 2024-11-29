@@ -34,6 +34,7 @@ const BookingForm = ({ onSubmit, propertyName }) => {
     name: '',
     email: '',
     phone: '',
+    notes: '',
     date: '',
     time: ''
   });
@@ -83,37 +84,37 @@ const BookingForm = ({ onSubmit, propertyName }) => {
       <div className="space-y-2">
         <h3 className="font-serif text-2xl text-primary">Schedule Property Viewing</h3>
         <p className="text-neutral-500">{propertyName}</p>
-        <p className="text-sm text-neutral-600 italic">For Real Estate Agents Only</p>
+        <p className="text-sm text-neutral-600">Enter client details below to schedule a viewing</p>
       </div>
       
       <div className="space-y-4">
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-neutral-700">Agent Name *</label>
+          <label className="block text-sm font-medium text-neutral-700">Client Full Name *</label>
           <input
             type="text"
             value={formData.name}
             onChange={e => handleInputChange('name', e.target.value)}
             className="w-full p-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-shadow"
-            placeholder="Enter your full name"
+            placeholder="Enter client's full name"
             required
           />
         </div>
 
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-neutral-700">Agent Email *</label>
+          <label className="block text-sm font-medium text-neutral-700">Client Email *</label>
           <input
             type="email"
             value={formData.email}
             onChange={e => handleInputChange('email', e.target.value)}
             className="w-full p-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-shadow"
-            placeholder="Enter your work email"
+            placeholder="Enter client's email address"
             pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
             required
           />
         </div>
 
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-neutral-700">Phone Number *</label>
+          <label className="block text-sm font-medium text-neutral-700">Client Phone Number *</label>
           <input
             type="tel"
             value={formData.phone}
@@ -122,6 +123,17 @@ const BookingForm = ({ onSubmit, propertyName }) => {
             placeholder="+34 XXX XXX XXX"
             pattern="^\+?[0-9\s-()]{9,}$"
             required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-neutral-700">Additional Notes</label>
+          <textarea
+            value={formData.notes || ''}
+            onChange={e => handleInputChange('notes', e.target.value)}
+            className="w-full p-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-shadow"
+            placeholder="Any special requirements or preferences"
+            rows="3"
           />
         </div>
       </div>
@@ -140,7 +152,7 @@ const BookingForm = ({ onSubmit, propertyName }) => {
         </button>
         {(!formData.name || !formData.email || !formData.phone) && (
           <p className="text-sm text-red-500 mt-2 text-center">
-            * Please provide your name, email, and phone number to proceed
+            * Please provide all required client information
           </p>
         )}
       </div>
@@ -444,7 +456,8 @@ const ChatInterface = () => {
           date: formData.date,
           time: formData.time,
           status: 'pending_confirmation'
-        }
+        },
+        notes: formData.notes
       };
 
       console.log('Webhook payload:', webhookData);
@@ -474,6 +487,7 @@ const ChatInterface = () => {
                 <li>Name: {formData.name}</li>
                 <li>Email: {formData.email}</li>
                 <li>Phone: {formData.phone}</li>
+                <li>Notes: {formData.notes}</li>
               </ul>
               <p className="text-sm mt-2">Please check your email shortly. If you don't receive the brochure, please check your spam folder.</p>
             </div>
