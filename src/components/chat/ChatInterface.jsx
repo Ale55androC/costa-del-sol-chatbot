@@ -80,7 +80,7 @@ const BookingForm = ({ onSubmit, propertyName }) => {
   };
 
   const FormStep1 = () => (
-    <div className="bg-white rounded-2xl p-8 shadow-medium space-y-6 animate-fade-in" onClick={e => e.stopPropagation()}>
+    <div className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-auto shadow-medium space-y-6 animate-fade-in" onClick={e => e.stopPropagation()}>
       <div className="space-y-2">
         <h3 className="font-serif text-2xl text-primary">Schedule Property Viewing</h3>
         <p className="text-neutral-500">{propertyName}</p>
@@ -116,14 +116,21 @@ const BookingForm = ({ onSubmit, propertyName }) => {
         <div className="space-y-2">
           <label className="block text-sm font-medium text-neutral-700">Client Phone Number *</label>
           <input
-            type="tel"
+            type="text"
             value={formData.phone}
-            onChange={e => handleInputChange('phone', e.target.value)}
+            onChange={e => {
+              const value = e.target.value;
+              // Only allow numbers and specific characters
+              if (/^[0-9+\s]*$/.test(value)) {
+                handleInputChange('phone', value);
+              }
+            }}
             className="w-full p-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-shadow"
-            placeholder="+34 XXX XXX XXX"
-            pattern="^\+?[0-9\s-()]{9,}$"
+            placeholder="+34 XXXXXXXXX"
+            maxLength="13"
             required
           />
+          <p className="text-xs text-neutral-500">Format: +34 followed by 9 digits</p>
         </div>
 
         <div className="space-y-2">
@@ -131,7 +138,7 @@ const BookingForm = ({ onSubmit, propertyName }) => {
           <textarea
             value={formData.notes || ''}
             onChange={e => handleInputChange('notes', e.target.value)}
-            className="w-full p-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-shadow"
+            className="w-full p-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-shadow resize-none"
             placeholder="Any special requirements or preferences"
             rows="3"
           />
@@ -160,7 +167,7 @@ const BookingForm = ({ onSubmit, propertyName }) => {
   );
 
   const FormStep2 = () => (
-    <div className="bg-white rounded-2xl p-8 shadow-medium space-y-6 animate-fade-in" onClick={e => e.stopPropagation()}>
+    <div className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-auto shadow-medium space-y-6 animate-fade-in" onClick={e => e.stopPropagation()}>
       <div className="space-y-2">
         <h3 className="font-serif text-2xl text-primary">Select Viewing Time</h3>
         <p className="text-neutral-500">{propertyName}</p>
