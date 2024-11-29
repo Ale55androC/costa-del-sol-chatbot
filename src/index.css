@@ -3,6 +3,13 @@
 @tailwind utilities;
 
 :root {
+  --primary: #1B4965;
+  --primary-light: #5FA8D3;
+  --primary-dark: #0C2233;
+  --secondary: #CAA55E;
+  --secondary-light: #D4B982;
+  --secondary-dark: #A17D2D;
+  --accent: #BEE9E8;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -23,11 +30,15 @@ a:hover {
 }
 
 body {
+  @apply bg-neutral-50 text-neutral-800;
   margin: 0;
   display: flex;
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1 {
@@ -52,6 +63,82 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* Smooth scrolling */
+* {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-neutral-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-neutral-400;
+}
+
+/* Input autofill styles */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: theme('colors.neutral.800');
+  -webkit-box-shadow: 0 0 0px 1000px theme('colors.white') inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Focus outline */
+*:focus {
+  outline: none;
+}
+
+/* Transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @media (prefers-color-scheme: light) {

@@ -33,10 +33,12 @@ const BookingForm = ({ onSubmit, propertyName }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: ''
+    phone: '',
+    date: '',
+    time: ''
   });
-  const [selectedTime, setSelectedTime] = useState(null);
-  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  const [step, setStep] = useState(1);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -45,118 +47,184 @@ const BookingForm = ({ onSubmit, propertyName }) => {
     }));
   };
 
-  const handleTimeSelect = (time) => {
+  const handleNext = () => {
     if (formData.name && formData.email && formData.phone) {
-      setSelectedTime(time);
-      setShowConfirmation(true);
+      setStep(2);
     }
   };
 
-  const handleConfirm = () => {
-    onSubmit({ ...formData, time: selectedTime });
-    setShowConfirmation(false);
+  const getAvailableTimes = () => {
+    return [
+      '10:00', '11:00', '12:00', '14:00', '15:00', '16:00'
+    ];
   };
 
-  if (showConfirmation) {
-    return (
-      <div className="bg-white rounded-lg p-6 space-y-4" onClick={e => e.stopPropagation()}>
-        <h3 className="text-xl font-serif text-primary">Confirm Viewing Request</h3>
-        <div className="bg-gray-50 p-4 rounded-lg space-y-3">
-          <p className="font-medium text-gray-700">Please confirm your viewing request:</p>
-          <div className="space-y-2">
-            <p><span className="font-medium">Property:</span> {propertyName}</p>
-            <p><span className="font-medium">Date:</span> {new Date().toLocaleDateString()}</p>
-            <p><span className="font-medium">Time:</span> {selectedTime}</p>
-            <p><span className="font-medium">Name:</span> {formData.name}</p>
-            <p><span className="font-medium">Email:</span> {formData.email}</p>
-            <p><span className="font-medium">Phone:</span> {formData.phone}</p>
-          </div>
-        </div>
-        <div className="flex gap-3 mt-4">
-          <button
-            onClick={handleConfirm}
-            className="flex-1 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors"
-          >
-            Confirm Booking
-          </button>
-          <button
-            onClick={() => setShowConfirmation(false)}
-            className="flex-1 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Back
-          </button>
-        </div>
-        <p className="text-sm text-gray-500 mt-2">
-          * A real estate agent will review your request and contact you to confirm the viewing.
-        </p>
-      </div>
-    );
-  }
+  const getAvailableDates = () => {
+    const dates = [];
+    const today = new Date();
+    for (let i = 1; i <= 14; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      if (date.getDay() !== 0 && date.getDay() !== 6) {
+        dates.push(date.toISOString().split('T')[0]);
+      }
+    }
+    return dates;
+  };
 
-  return (
-    <div className="bg-white rounded-lg p-6 space-y-4" onClick={e => e.stopPropagation()}>
-      <h3 className="text-xl font-serif text-primary">Schedule a Viewing - {propertyName}</h3>
+  const handleSubmit = () => {
+    if (formData.date && formData.time) {
+      onSubmit(formData);
+    }
+  };
+
+  const FormStep1 = () => (
+    <div className="bg-white rounded-2xl p-8 shadow-medium space-y-6 animate-fade-in" onClick={e => e.stopPropagation()}>
+      <div className="space-y-2">
+        <h3 className="font-serif text-2xl text-primary">Schedule Property Viewing</h3>
+        <p className="text-neutral-500">{propertyName}</p>
+        <p className="text-sm text-neutral-600 italic">For Real Estate Agents Only</p>
+      </div>
       
       <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-neutral-700">Agent Name *</label>
           <input
             type="text"
             value={formData.name}
             onChange={e => handleInputChange('name', e.target.value)}
-            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-            placeholder="Enter your name"
+            className="w-full p-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-shadow"
+            placeholder="Enter your full name"
+            required
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-neutral-700">Agent Email *</label>
           <input
             type="email"
             value={formData.email}
             onChange={e => handleInputChange('email', e.target.value)}
-            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-            placeholder="Enter your email"
+            className="w-full p-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-shadow"
+            placeholder="Enter your work email"
+            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+            required
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-neutral-700">Phone Number *</label>
           <input
             type="tel"
             value={formData.phone}
             onChange={e => handleInputChange('phone', e.target.value)}
-            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-            placeholder="Enter your phone number"
+            className="w-full p-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-shadow"
+            placeholder="+34 XXX XXX XXX"
+            pattern="^\+?[0-9\s-()]{9,}$"
+            required
           />
         </div>
       </div>
 
-      <div className="mt-6">
-        <p className="text-gray-600 mb-2">Select preferred viewing time:</p>
-        <div className="grid grid-cols-2 gap-2">
-          {['10:00 AM', '2:00 PM', '4:00 PM', '6:00 PM'].map((time) => (
-            <button
-              key={time}
-              onClick={() => handleTimeSelect(time)}
-              className={`p-2 rounded-lg transition-colors ${
-                !formData.name || !formData.email || !formData.phone
-                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                  : 'bg-primary text-white hover:bg-primary-dark'
-              }`}
-            >
-              {time}
-            </button>
-          ))}
-        </div>
+      <div className="pt-4">
+        <button
+          onClick={handleNext}
+          disabled={!formData.name || !formData.email || !formData.phone}
+          className={`w-full py-3 px-6 rounded-xl text-white transition-all transform hover:scale-[1.02] ${
+            !formData.name || !formData.email || !formData.phone
+              ? 'bg-neutral-200 cursor-not-allowed'
+              : 'bg-primary hover:bg-primary-dark shadow-soft hover:shadow-medium'
+          }`}
+        >
+          Continue to Select Time
+        </button>
         {(!formData.name || !formData.email || !formData.phone) && (
-          <p className="text-sm text-red-500 mt-2">
-            * Please fill in all fields before selecting a time
+          <p className="text-sm text-red-500 mt-2 text-center">
+            * Please provide your name, email, and phone number to proceed
           </p>
         )}
       </div>
     </div>
   );
+
+  const FormStep2 = () => (
+    <div className="bg-white rounded-2xl p-8 shadow-medium space-y-6 animate-fade-in" onClick={e => e.stopPropagation()}>
+      <div className="space-y-2">
+        <h3 className="font-serif text-2xl text-primary">Select Viewing Time</h3>
+        <p className="text-neutral-500">{propertyName}</p>
+      </div>
+      
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-neutral-700">Select Date</label>
+          <select
+            value={formData.date}
+            onChange={e => handleInputChange('date', e.target.value)}
+            className="w-full p-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-shadow bg-white"
+          >
+            <option value="">Choose a date</option>
+            {getAvailableDates().map(date => (
+              <option key={date} value={date}>
+                {new Date(date).toLocaleDateString('en-GB', {
+                  weekday: 'long',
+                  day: '2-digit',
+                  month: 'long'
+                })}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {formData.date && (
+          <div className="space-y-2 animate-fade-in">
+            <label className="block text-sm font-medium text-neutral-700">Select Time</label>
+            <div className="grid grid-cols-3 gap-3">
+              {getAvailableTimes().map(time => (
+                <button
+                  key={time}
+                  onClick={() => handleInputChange('time', time)}
+                  className={`p-3 rounded-xl border transition-all transform hover:scale-[1.02] ${
+                    formData.time === time
+                      ? 'bg-primary text-white border-primary shadow-soft'
+                      : 'border-neutral-200 hover:border-primary hover:shadow-soft'
+                  }`}
+                >
+                  {time}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="flex gap-3 pt-4">
+        <button
+          onClick={() => setStep(1)}
+          className="w-1/2 py-3 px-6 rounded-xl border border-primary text-primary hover:bg-primary hover:text-white transition-colors"
+        >
+          Back
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={!formData.date || !formData.time}
+          className={`w-1/2 py-3 px-6 rounded-xl text-white transition-all transform hover:scale-[1.02] ${
+            !formData.date || !formData.time
+              ? 'bg-neutral-200 cursor-not-allowed'
+              : 'bg-primary hover:bg-primary-dark shadow-soft hover:shadow-medium'
+          }`}
+        >
+          Schedule Viewing
+        </button>
+      </div>
+      {(!formData.date || !formData.time) && (
+        <p className="text-sm text-red-500 text-center">
+          * Please select both a date and time for your viewing
+        </p>
+      )}
+    </div>
+  );
+
+  return step === 1 ? <FormStep1 /> : <FormStep2 />;
 };
 
 const BrochureRequestForm = ({ onSubmit, propertyName }) => {
@@ -180,62 +248,65 @@ const BrochureRequestForm = ({ onSubmit, propertyName }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg p-6 space-y-4" onClick={e => e.stopPropagation()}>
-      <h3 className="text-xl font-serif text-primary">Request Property Brochure - {propertyName}</h3>
+    <div className="bg-white rounded-2xl p-8 shadow-medium space-y-6 animate-fade-in" onClick={e => e.stopPropagation()}>
+      <div className="space-y-2">
+        <h3 className="font-serif text-2xl text-primary">Request Property Brochure</h3>
+        <p className="text-neutral-500">{propertyName}</p>
+      </div>
       
       <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-neutral-700">Full Name</label>
           <input
             type="text"
             value={formData.name}
             onChange={e => handleInputChange('name', e.target.value)}
-            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+            className="w-full p-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-shadow"
             placeholder="Enter your name"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-neutral-700">Email Address</label>
           <input
             type="email"
             value={formData.email}
             onChange={e => handleInputChange('email', e.target.value)}
-            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+            className="w-full p-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-shadow"
             placeholder="Enter your email"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Phone (optional)</label>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-neutral-700">Phone Number (Optional)</label>
           <input
             type="tel"
             value={formData.phone}
             onChange={e => handleInputChange('phone', e.target.value)}
-            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+            className="w-full p-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-shadow"
             placeholder="Enter your phone number"
           />
         </div>
       </div>
 
-      <div className="flex gap-3 mt-6">
+      <div className="pt-4">
         <button
           onClick={handleSubmit}
           disabled={!formData.name || !formData.email}
-          className={`w-full py-2 px-4 rounded-lg transition-colors ${
+          className={`w-full py-3 px-6 rounded-xl text-white transition-all transform hover:scale-[1.02] ${
             !formData.name || !formData.email
-              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-              : 'bg-primary text-white hover:bg-primary-dark'
+              ? 'bg-neutral-200 cursor-not-allowed'
+              : 'bg-primary hover:bg-primary-dark shadow-soft hover:shadow-medium'
           }`}
         >
           Request Brochure
         </button>
+        {(!formData.name || !formData.email) && (
+          <p className="text-sm text-red-500 mt-2 text-center">
+            * Please provide your name and email to receive the brochure
+          </p>
+        )}
       </div>
-      {(!formData.name || !formData.email) && (
-        <p className="text-sm text-red-500 mt-2">
-          * Please provide your name and email to receive the brochure
-        </p>
-      )}
     </div>
   );
 };
@@ -244,7 +315,6 @@ const ChatInterface = () => {
   const [chatHistory, setChatHistory] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
 
-  // Display property details
   const showPropertyDetails = (propertyName) => {
     const property = sampleProperties[propertyName];
     
@@ -269,19 +339,19 @@ const ChatInterface = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg p-6 space-y-6">
+          <div className="bg-white rounded-2xl p-6 space-y-6">
             <div className="flex justify-between items-center">
               <span className="text-primary font-medium">Ref: {property.ref}</span>
               <div className="flex gap-4">
                 <button
                   onClick={() => showSchedulingForm(propertyName)}
-                  className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors"
+                  className="bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary-dark transition-colors"
                 >
                   Schedule Viewing
                 </button>
                 <button
                   onClick={() => showBrochureForm(propertyName)}
-                  className="border-2 border-primary text-primary px-4 py-2 rounded-lg hover:bg-primary hover:text-white transition-colors"
+                  className="border-2 border-primary text-primary px-4 py-2 rounded-xl hover:bg-primary hover:text-white transition-colors"
                 >
                   Request Brochure
                 </button>
@@ -322,10 +392,9 @@ const ChatInterface = () => {
     setChatHistory(prev => [...prev, message]);
   };
 
-  // Show scheduling form
   const showSchedulingForm = (propertyName) => {
     const handleBookingSubmit = (formData) => {
-      scheduleViewing(propertyName, formData.time, formData);
+      scheduleViewing(propertyName, formData);
     };
 
     const message = {
@@ -336,7 +405,6 @@ const ChatInterface = () => {
     setChatHistory(prev => [...prev, message]);
   };
 
-  // Show brochure request form
   const showBrochureForm = (propertyName) => {
     const handleBrochureSubmit = (formData) => {
       sendBrochure(propertyName, formData);
@@ -350,14 +418,12 @@ const ChatInterface = () => {
     setChatHistory(prev => [...prev, message]);
   };
 
-  // Schedule viewing
-  const scheduleViewing = async (propertyName, time, formData) => {
+  const scheduleViewing = async (propertyName, formData) => {
     const property = sampleProperties[propertyName];
     
     try {
       console.log('Submitting viewing request:', {
         propertyName,
-        time,
         formData
       });
 
@@ -375,8 +441,8 @@ const ChatInterface = () => {
           phone: formData.phone
         },
         viewing: {
-          time: time,
-          date: new Date().toLocaleDateString(),
+          date: formData.date,
+          time: formData.time,
           status: 'pending_confirmation'
         }
       };
@@ -397,22 +463,19 @@ const ChatInterface = () => {
       const message = {
         type: 'bot',
         content: (
-          <div className="bg-white rounded-lg p-4">
+          <div className="bg-white rounded-2xl p-4">
             <p className="text-green-600 font-medium">✓ Viewing request submitted successfully!</p>
             <div className="text-gray-600 mt-2 space-y-2">
               <p>Your viewing request has been submitted with the following details:</p>
               <ul className="list-disc list-inside pl-4">
                 <li>Property: {propertyName}</li>
-                <li>Date: {new Date().toLocaleDateString()}</li>
-                <li>Time: {time}</li>
+                <li>Date: {formData.date}</li>
+                <li>Time: {formData.time}</li>
                 <li>Name: {formData.name}</li>
                 <li>Email: {formData.email}</li>
                 <li>Phone: {formData.phone}</li>
               </ul>
-              <p className="mt-2 text-sm bg-blue-50 p-3 rounded-lg">
-                A real estate agent will review your request and contact you shortly to confirm the viewing.
-                Please note that the viewing is not confirmed until you receive confirmation from our team.
-              </p>
+              <p className="text-sm mt-2">Please check your email shortly. If you don't receive the brochure, please check your spam folder.</p>
             </div>
           </div>
         )
@@ -425,7 +488,7 @@ const ChatInterface = () => {
       const message = {
         type: 'bot',
         content: (
-          <div className="bg-white rounded-lg p-4">
+          <div className="bg-white rounded-2xl p-4">
             <p className="text-red-500 font-medium">Unable to submit viewing request</p>
             <p className="text-gray-600 mt-2">
               We're having trouble submitting your viewing request. Please try again or contact us directly at:
@@ -440,7 +503,6 @@ const ChatInterface = () => {
     }
   };
 
-  // Send property brochure
   const sendBrochure = async (propertyName, formData) => {
     const property = sampleProperties[propertyName];
     
@@ -475,7 +537,7 @@ const ChatInterface = () => {
       const message = {
         type: 'bot',
         content: (
-          <div className="bg-white rounded-lg p-4">
+          <div className="bg-white rounded-2xl p-4">
             <p className="text-green-600 font-medium">✓ Brochure request sent successfully!</p>
             <div className="text-gray-600 mt-2 space-y-2">
               <p>We'll send a detailed property brochure to {formData.email} with information about:</p>
@@ -499,7 +561,7 @@ const ChatInterface = () => {
       const message = {
         type: 'bot',
         content: (
-          <div className="bg-white rounded-lg p-4">
+          <div className="bg-white rounded-2xl p-4">
             <p className="text-red-500 font-medium">Unable to send brochure</p>
             <p className="text-gray-600 mt-2">
               We're having trouble sending the brochure. Please try again or contact us directly at:
@@ -513,60 +575,76 @@ const ChatInterface = () => {
     }
   };
 
-  // Welcome message
-  useEffect(() => {
-    const welcome = {
-      type: 'bot',
-      content: (
-        <div className="space-y-4">
-          <p className="text-gray-600">Welcome! Select a property to view details:</p>
-          <div className="flex flex-wrap gap-2">
-            {Object.keys(sampleProperties).map((propertyName) => (
-              <button
-                key={propertyName}
-                onClick={() => showPropertyDetails(propertyName)}
-                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
-              >
-                <BuildingOfficeIcon className="w-5 h-5" />
-                <span>{propertyName}</span>
-              </button>
-            ))}
-          </div>
+  const welcome = {
+    type: 'bot',
+    content: (
+      <div className="space-y-4">
+        <p className="text-gray-600">Welcome! Select a property to view details:</p>
+        <div className="flex flex-wrap gap-2">
+          {Object.keys(sampleProperties).map((propertyName) => (
+            <button
+              key={propertyName}
+              onClick={() => showPropertyDetails(propertyName)}
+              className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors"
+            >
+              <BuildingOfficeIcon className="w-5 h-5" />
+              <span>{propertyName}</span>
+            </button>
+          ))}
         </div>
-      )
-    };
+      </div>
+    )
+  };
 
+  useEffect(() => {
     setChatHistory([welcome]);
   }, []);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] bg-gray-50">
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+    <div className="max-w-4xl mx-auto p-4 h-[600px] flex flex-col">
+      <div className="bg-white rounded-t-2xl shadow-soft p-6 border-b border-neutral-200">
+        <h2 className="font-serif text-2xl text-primary">Costa Del Sol Property Assistant</h2>
+        <p className="text-neutral-500 mt-1">Your personal guide to luxury properties</p>
+      </div>
+
+      <div 
+        className="flex-1 overflow-y-auto bg-gradient-to-b from-neutral-50 to-white p-4 space-y-4"
+      >
         {chatHistory.map((message, index) => (
           <div
             key={index}
-            className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
           >
-            <div className={`max-w-3xl ${message.type === 'user' ? 'bg-primary text-white' : ''}`}>
-              {message.content}
+            <div
+              className={`max-w-[80%] rounded-2xl shadow-soft ${
+                message.type === 'user'
+                  ? 'bg-primary text-white'
+                  : 'bg-white border border-neutral-200'
+              } p-4`}
+            >
+              {typeof message.content === 'string' ? (
+                <p className="text-sm">{message.content}</p>
+              ) : (
+                message.content
+              )}
             </div>
           </div>
         ))}
       </div>
 
-      <div className="border-t bg-white p-4">
-        <div className="max-w-3xl mx-auto flex gap-2">
+      <div className="bg-white rounded-b-2xl shadow-soft p-4 border-t border-neutral-200">
+        <div className="flex gap-2">
           <input
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && setInputMessage('')}
+            onKeyDown={(e) => e.key === 'Enter' && setInputMessage('')}
             placeholder="Type your message..."
-            className="flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+            className="flex-1 p-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-shadow text-sm"
           />
           <button
             onClick={() => setInputMessage('')}
-            className="p-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+            className="px-6 py-3 rounded-xl bg-primary text-white hover:bg-primary-dark transition-colors"
           >
             <PaperAirplaneIcon className="w-5 h-5" />
           </button>
